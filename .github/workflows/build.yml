@@ -1,39 +1,38 @@
 name: CI
-on: 
+on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: node:20-alpine 
+    container: node:20-alpine
     steps:
-      - name: Install git and rsync 📚
-        run: |
-          apk update && apk add git rsync
+      - name: Install git and rsync
+        run: apk update && apk add git rsync
 
       - uses: actions/checkout@v4
 
-      # ESTE PASO EXTRA CORRIGE EL ERROR 128 EN CONTENEDORES
-      - name: Configure Git Safe Directory
-        run: |
-          git config --global --add safe.directory /__w/hello-antora/hello-antora
-
-      - name: Install dependencies 
+      - name: Install dependencies
         run: npm install
 
-      - name: Build Antora project 
+      - name: Build Antora project
         run: |
-          cp -R node_modules/@antora/lunr-extension/supplemental_ui/* supplemental-ui/ 
-          npx antora local-antora-playbook.yml --fetch 
+          cp -R node_modules/@antora/lunr-extension/supplemental_ui/* supplemental-ui/
+          npx antora local-antora-playbook.yml --fetch
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.2.5
-        if: contains(github.ref, 'refs/heads/main') 
+      - uses: actions/upload-artifact@v4
         with:
-          branch: gh-pages 
-          folder: docs  
+          name: docs
+          path: docs/
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        if: contains(github.ref, 'refs/heads/main')
+        with:
+          branch: gh-pages
+          folder: docs
           clean: true
