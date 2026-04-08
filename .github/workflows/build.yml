@@ -7,14 +7,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # 👈 esto es lo que faltaba
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container: node:20-alpine
     steps:
-      - uses: actions/checkout@v4    
       - name: Install git and rsync
         run: apk update && apk add git rsync
 
@@ -33,10 +32,22 @@ jobs:
           name: docs
           path: docs/
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs
+          path: docs/
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.5
-        if: contains(github.ref, 'refs/heads/main')
-        with:  
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: docs
           clean: true
