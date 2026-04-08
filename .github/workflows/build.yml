@@ -1,28 +1,36 @@
 name: CI
 
-on:
+on: 
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    container: node:20-alpine
+    container: node:20-alpine 
+
     steps:
+      - name: Install git and rsync 📚
+        run: |
+          apk update && apk add git rsync
+
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install dependencies 
         run: npm install
 
-      - name: Build Antora project
+      - name: Build Antora project 
         run: |
-          cp -R node_modules/@antora/lunr-extension/supplemental_ui/* supplemental-ui/
-          npx antora local-antora-playbook.yml --fetch
-      - uses: actions/upload-artifact@v4
+          cp -R node_modules/@antora/lunr-extension/supplemental_ui/* supplemental-ui/ 
+          npx antora local-antora-playbook.yml --fetch 
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        if: contains(github.ref, 'refs/heads/main') 
         with:
-            name: docs
-            path: docs/ 
+          branch: gh-pages 
+          folder: build/site # Importante: Antora genera la web aquí
+          clean: true
