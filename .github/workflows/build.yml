@@ -1,4 +1,5 @@
 name: CI
+
 on: 
   push:
     branches: [ main ]
@@ -10,6 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: node:20-alpine 
+
     steps:
       - name: Install git and rsync 📚
         run: |
@@ -22,19 +24,13 @@ jobs:
 
       - name: Build Antora project 
         run: |
-            set -e
-            echo "Creando carpeta supplemental-ui..."
-            mkdir -p supplemental-ui
-            echo "Copiando archivos..."
-            cp -R node_modules/@antora/lunr-extension/supplemental_ui/* supplemental-ui/ || true
-
-            echo "Ejecutando Antora..."
-            npx antora local-antora-playbook.yml --fetch
+          set -e
+          mkdir -p supplemental-ui
+          cp -R node_modules/@antora/lunr-extension/supplemental_ui/* supplemental-ui/ || true
+          npx antora local-antora-playbook.yml --fetch
 
       - name: Verificar build
-        run: |
-            echo "Mostrando estructura de archivos:"
-            ls -R
+        run: ls -R
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5
