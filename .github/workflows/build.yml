@@ -1,5 +1,4 @@
 name: CI
-
 on: 
   push:
     branches: [ main ]
@@ -11,8 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: node:20-alpine 
-
     steps:
+      # ESTE PASO ES EL QUE SOLUCIONA EL ERROR 128
       - name: Install git and rsync 📚
         run: |
           apk update && apk add git rsync
@@ -32,5 +31,5 @@ jobs:
         if: contains(github.ref, 'refs/heads/main') 
         with:
           branch: gh-pages 
-          folder: build/site # Importante: Antora genera la web aquí
+          folder: build/site 
           clean: true
