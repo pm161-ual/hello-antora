@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [ main ]
@@ -8,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write  # 👈 esto es lo que faltaba
 
 jobs:
   build:
@@ -33,20 +32,10 @@ jobs:
           name: docs
           path: docs/
 
-  deploy:                          
-    runs-on: ubuntu-latest
-    needs: build                   
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: docs
-          path: docs/
-
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.ref, 'refs/heads/main')
+        with:  
           branch: gh-pages
           folder: docs
           clean: true
